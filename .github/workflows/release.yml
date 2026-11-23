@@ -5,8 +5,9 @@ name: Release
 # when there's none), or release:none to merge without deploying or releasing.
 #
 # Vercel's own Git deploys of main are off (vercel.json), so this is the only way to production.
-# Needs repository secrets VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID, and optionally the
-# repository variable SITE_URL (e.g. https://vms.example.com) for canonical and Open Graph URLs.
+# Needs repository secrets VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID. The site's own settings,
+# such as SITE_URL (e.g. https://vms.example.com, for canonical and Open Graph URLs), live in the
+# Vercel project's Production environment variables; `vercel pull` brings them into the build.
 on:
   push:
     branches: [main]
@@ -152,11 +153,11 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     outputs:
       url: ${{ steps.deploy.outputs.url }}
+      site_url: ${{ steps.site.outputs.url }}
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      SITE_URL: ${{ vars.SITE_URL }}
     steps:
       - uses: actions/checkout@v5
 
@@ -170,6 +171,20 @@ jobs:
 
       - name: Pull the project settings
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      # SITE_URL is set in Vercel (Production environment variables). vercel build reads it from the
+      # pulled settings; this step only reports it, for the summary and the release notes.
+      - name: Read SITE_URL from Vercel
+        id: site
+        run: |
+          set -euo pipefail
+          url=$(sed -n 's/^SITE_URL=//p' .vercel/.env.production.local 2>/dev/null | head -n 1 | tr -d '"' || true)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          if [ -n "$url" ]; then
+            echo "SITE_URL from Vercel: $url" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::notice::SITE_URL isn't set in Vercel's Production environment, so canonical and Open Graph URLs fall back to Vercel's production domain."
+          fi
 
       - name: Build
         run: vercel build --prod --token="$VERCEL_TOKEN"
@@ -199,7 +214,7 @@ jobs:
         env:
           VERSION: ${{ needs.plan.outputs.version }}
           DEPLOY_URL: ${{ needs.deploy.outputs.url }}
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ needs.deploy.outputs.site_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
