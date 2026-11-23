@@ -3,153 +3,9 @@
 
 export const sections = [
   {
-    "id": "unix",
-    "title": "Unix → DCL",
-    "intro": "Rough equivalents. The DCL versions often take more qualifiers; <code>HELP command</code> lists them.",
-    "unix": true,
-    "heads": [
-      "DCL",
-      "Unix habit"
-    ],
-    "rows": [
-      {
-        "cmd": "<code>DIRECTORY</code>",
-        "copy": "DIRECTORY",
-        "desc": "<code>ls</code>"
-      },
-      {
-        "cmd": "<code>DIRECTORY/SIZE/DATE</code>",
-        "copy": "DIRECTORY/SIZE/DATE",
-        "desc": "<code>ls -l</code>"
-      },
-      {
-        "cmd": "<code>SET DEFAULT [.SUBDIR]</code>",
-        "copy": "SET DEFAULT [.SUBDIR]",
-        "desc": "<code>cd subdir</code>"
-      },
-      {
-        "cmd": "<code>SET DEFAULT [-]</code>",
-        "copy": "SET DEFAULT [-]",
-        "desc": "<code>cd ..</code>"
-      },
-      {
-        "cmd": "<code>SET DEFAULT SYS$LOGIN</code>",
-        "copy": "SET DEFAULT SYS$LOGIN",
-        "desc": "<code>cd ~</code>"
-      },
-      {
-        "cmd": "<code>SHOW DEFAULT</code>",
-        "copy": "SHOW DEFAULT",
-        "desc": "<code>pwd</code>"
-      },
-      {
-        "cmd": "<code>TYPE file.txt</code>",
-        "copy": "TYPE file.txt",
-        "desc": "<code>cat</code>"
-      },
-      {
-        "cmd": "<code>TYPE/PAGE file.txt</code>",
-        "copy": "TYPE/PAGE file.txt",
-        "desc": "<code>less</code>"
-      },
-      {
-        "cmd": "<code>COPY a.txt b.txt</code>",
-        "copy": "COPY a.txt b.txt",
-        "desc": "<code>cp</code>"
-      },
-      {
-        "cmd": "<code>RENAME a.txt b.txt</code>",
-        "copy": "RENAME a.txt b.txt",
-        "desc": "<code>mv</code>"
-      },
-      {
-        "cmd": "<code>DELETE file.txt;*</code>",
-        "copy": "DELETE file.txt;*",
-        "desc": "<code>rm</code>"
-      },
-      {
-        "cmd": "<code>CREATE/DIRECTORY [.NEWDIR]</code>",
-        "copy": "CREATE/DIRECTORY [.NEWDIR]",
-        "desc": "<code>mkdir</code>"
-      },
-      {
-        "cmd": "<code>SEARCH *.COM \"string\"</code>",
-        "copy": "SEARCH *.COM \"string\"",
-        "desc": "<code>grep</code>"
-      },
-      {
-        "cmd": "<code>DIFFERENCES a.txt b.txt</code>",
-        "copy": "DIFFERENCES a.txt b.txt",
-        "desc": "<code>diff</code>"
-      },
-      {
-        "cmd": "<code>EDIT/TPU file.txt</code>",
-        "copy": "EDIT/TPU file.txt",
-        "desc": "<code>vi / nano</code>"
-      },
-      {
-        "cmd": "<code>SET SECURITY/PROTECTION=(W:R) file.txt</code>",
-        "copy": "SET SECURITY/PROTECTION=(W:R) file.txt",
-        "desc": "<code>chmod</code>"
-      },
-      {
-        "cmd": "<code>SHOW SYSTEM</code>",
-        "copy": "SHOW SYSTEM",
-        "desc": "<code>ps -e</code>"
-      },
-      {
-        "cmd": "<code>STOP/IDENTIFICATION=pid</code>",
-        "copy": "STOP/IDENTIFICATION=pid",
-        "desc": "<code>kill</code>"
-      },
-      {
-        "cmd": "<code>MONITOR PROCESSES/TOPCPU</code>",
-        "copy": "MONITOR PROCESSES/TOPCPU",
-        "desc": "<code>top</code>"
-      },
-      {
-        "cmd": "<code>SHOW USERS</code>",
-        "copy": "SHOW USERS",
-        "desc": "<code>who</code>"
-      },
-      {
-        "cmd": "<code>SHOW DEVICES D</code>",
-        "copy": "SHOW DEVICES D",
-        "desc": "<code>df</code>"
-      },
-      {
-        "cmd": "<code>SHOW LOGICAL</code> / <code>SHOW SYMBOL *</code>",
-        "copy": "SHOW LOGICAL",
-        "desc": "<code>env</code>"
-      },
-      {
-        "cmd": "<code>RECALL/ALL</code>",
-        "copy": "RECALL/ALL",
-        "desc": "<code>history</code>"
-      },
-      {
-        "cmd": "<code>HELP DIRECTORY</code>",
-        "copy": "HELP DIRECTORY",
-        "desc": "<code>man ls</code>"
-      },
-      {
-        "cmd": "<code>@SCRIPT.COM</code>",
-        "copy": "@SCRIPT.COM",
-        "desc": "<code>sh script.sh</code>"
-      },
-      {
-        "cmd": "<code>LOGOUT</code>",
-        "copy": "LOGOUT",
-        "desc": "<code>exit</code>"
-      }
-    ],
-    "after": null
-  },
-  {
     "id": "files",
     "title": "Files",
     "intro": null,
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -242,7 +98,6 @@ export const sections = [
     "id": "dirs",
     "title": "Directories",
     "intro": null,
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -318,9 +173,8 @@ export const sections = [
   },
   {
     "id": "info",
-    "title": "System info",
+    "title": "System Info",
     "intro": null,
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -406,9 +260,8 @@ export const sections = [
   },
   {
     "id": "procs",
-    "title": "Processes &amp; batch",
+    "title": "Processes &amp; Batch",
     "intro": null,
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -474,9 +327,8 @@ export const sections = [
   },
   {
     "id": "symbols",
-    "title": "Symbols, logicals &amp; scripts",
+    "title": "Symbols, Logicals &amp; Scripts",
     "intro": "Symbols are DCL variables and command aliases. Logical names are system-wide or per-process path aliases. Command procedures (<code>.COM</code> files) are DCL scripts, and every line starts with <code>$</code>.",
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -533,8 +385,8 @@ export const sections = [
         "desc": "Echo each line as a script runs. <code>SET NOVERIFY</code> turns it off."
       },
       {
-        "cmd": "<code>SET PROMPT=\"X86923$ \"</code>",
-        "copy": "SET PROMPT=\"X86923$ \"",
+        "cmd": "<code>SET PROMPT=\"MYNODE$ \"</code>",
+        "copy": "SET PROMPT=\"MYNODE$ \"",
         "desc": "Change your prompt."
       }
     ],
@@ -542,9 +394,8 @@ export const sections = [
   },
   {
     "id": "users",
-    "title": "Users &amp; passwords",
+    "title": "Users &amp; Passwords",
     "intro": "Accounts live in SYSUAF, edited with AUTHORIZE. Start it with <code>SET DEFAULT SYS$SYSTEM</code>, then <code>MCR AUTHORIZE</code>. These commands go at its <code>UAF&gt;</code> prompt.",
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -566,13 +417,13 @@ export const sections = [
         "desc": "One line per account."
       },
       {
-        "cmd": "<code>ADD RYAN/PASSWORD=temp1234/UIC=[200,201]/DEVICE=SYS$SYSDEVICE/DIRECTORY=[RYAN]/PRIVILEGES=(TMPMBX,NETMBX)/DEFPRIVILEGES=(TMPMBX,NETMBX)</code>",
-        "copy": "ADD RYAN/PASSWORD=temp1234/UIC=[200,201]/DEVICE=SYS$SYSDEVICE/DIRECTORY=[RYAN]/PRIVILEGES=(TMPMBX,NETMBX)/DEFPRIVILEGES=(TMPMBX,NETMBX)",
+        "cmd": "<code>ADD JDOE/PASSWORD=temp1234/UIC=[200,201]/DEVICE=SYS$SYSDEVICE/DIRECTORY=[JDOE]/PRIVILEGES=(TMPMBX,NETMBX)/DEFPRIVILEGES=(TMPMBX,NETMBX)</code>",
+        "copy": "ADD JDOE/PASSWORD=temp1234/UIC=[200,201]/DEVICE=SYS$SYSDEVICE/DIRECTORY=[JDOE]/PRIVILEGES=(TMPMBX,NETMBX)/DEFPRIVILEGES=(TMPMBX,NETMBX)",
         "desc": "Create an ordinary user. Then create their directory (next row)."
       },
       {
-        "cmd": "<code>CREATE/DIRECTORY SYS$SYSDEVICE:[RYAN]/OWNER=[200,201]</code>",
-        "copy": "CREATE/DIRECTORY SYS$SYSDEVICE:[RYAN]/OWNER=[200,201]",
+        "cmd": "<code>CREATE/DIRECTORY SYS$SYSDEVICE:[JDOE]/OWNER=[200,201]</code>",
+        "copy": "CREATE/DIRECTORY SYS$SYSDEVICE:[JDOE]/OWNER=[200,201]",
         "desc": "(At <code>$</code>) The new user's login directory."
       },
       {
@@ -586,13 +437,13 @@ export const sections = [
         "desc": "Stop a password from expiring."
       },
       {
-        "cmd": "<code>MODIFY RYAN/FLAGS=DISUSER</code>",
-        "copy": "MODIFY RYAN/FLAGS=DISUSER",
+        "cmd": "<code>MODIFY JDOE/FLAGS=DISUSER</code>",
+        "copy": "MODIFY JDOE/FLAGS=DISUSER",
         "desc": "Lock an account. <code>/FLAGS=NODISUSER</code> unlocks it."
       },
       {
-        "cmd": "<code>REMOVE RYAN</code>",
-        "copy": "REMOVE RYAN",
+        "cmd": "<code>REMOVE JDOE</code>",
+        "copy": "REMOVE JDOE",
         "desc": "Delete an account (not its files)."
       },
       {
@@ -607,7 +458,6 @@ export const sections = [
     "id": "net",
     "title": "TCP/IP &amp; SSH",
     "intro": null,
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -616,7 +466,7 @@ export const sections = [
       {
         "cmd": "<code>TCPIP SHOW INTERFACE</code>",
         "copy": "TCPIP SHOW INTERFACE",
-        "desc": "Network interfaces and addresses (yours is IE0, 10.0.2.15)."
+        "desc": "Network interfaces and their IP addresses."
       },
       {
         "cmd": "<code>TCPIP SHOW ROUTE</code>",
@@ -629,9 +479,9 @@ export const sections = [
         "desc": "Network services and whether they're enabled (SSHD22, TELNET, FTP…)."
       },
       {
-        "cmd": "<code>TCPIP PING 10.0.2.2</code>",
-        "copy": "TCPIP PING 10.0.2.2",
-        "desc": "Ping the QEMU gateway (your Mac, as the guest sees it)."
+        "cmd": "<code>TCPIP PING example.com</code>",
+        "copy": "TCPIP PING example.com",
+        "desc": "Check that another host is reachable."
       },
       {
         "cmd": "<code>@SYS$MANAGER:TCPIP$CONFIG</code>",
@@ -668,9 +518,8 @@ export const sections = [
   },
   {
     "id": "admin",
-    "title": "Admin, help &amp; shutdown",
+    "title": "Admin, Help &amp; Shutdown",
     "intro": null,
-    "unix": false,
     "heads": [
       "Command",
       "What it does"
@@ -709,67 +558,9 @@ export const sections = [
       {
         "cmd": "<code>@SYS$SYSTEM:SHUTDOWN</code>",
         "copy": "@SYS$SYSTEM:SHUTDOWN",
-        "desc": "Clean shutdown. It asks a few questions; the defaults are fine. Always do this before closing QEMU."
+        "desc": "Clean shutdown. It asks a few questions; the defaults are fine. Always do this before powering off the machine or closing the emulator."
       }
     ],
     "after": "<p class=\"callout\"><strong>Message format:</strong> errors look like <code>%DCL-W-NOCOMD, …</code>, which is facility, severity, then code. The severity letter is S (success), I (information), W (warning), E (error) or F (fatal). <code>-</code> instead of <code>%</code> means a follow-on line of the same message.</p>"
-  },
-  {
-    "id": "vm",
-    "title": "Your VM on the Mac",
-    "intro": "These run in macOS Terminal, not in VMS, from <code>~/openvms</code>.",
-    "unix": false,
-    "heads": [
-      "Command",
-      "What it does"
-    ],
-    "rows": [
-      {
-        "cmd": "<code>./boot-vms.sh</code>",
-        "copy": "./boot-vms.sh",
-        "desc": "Boot with the SDL window. At <code>BOOTMGR&gt;</code> type <code>OPA0</code> then <code>BOOT</code>. Login takes 5–10 minutes."
-      },
-      {
-        "cmd": "<code>ssh -p 2222 -o ConnectTimeout=120 system@127.0.0.1</code>",
-        "copy": "ssh -p 2222 -o ConnectTimeout=120 system@127.0.0.1",
-        "desc": "Log in over SSH once startup finishes."
-      },
-      {
-        "cmd": "<code>telnet 127.0.0.1 2223</code>",
-        "copy": "telnet 127.0.0.1 2223",
-        "desc": "Telnet fallback (unencrypted; fine on localhost)."
-      },
-      {
-        "cmd": "<code>ftp -P 2221 127.0.0.1</code>",
-        "copy": "ftp -P 2221 127.0.0.1",
-        "desc": "FTP into the guest. Use <code>bin</code> for kits and binaries."
-      },
-      {
-        "cmd": "<code>socat -,raw,echo=0,escape=0x1d UNIX-CONNECT:$HOME/openvms/console.sock</code>",
-        "copy": "socat -,raw,echo=0,escape=0x1d UNIX-CONNECT:$HOME/openvms/console.sock",
-        "desc": "Serial console (boot manager and early boot). <kbd>Ctrl-]</kbd> detaches."
-      },
-      {
-        "cmd": "<code>tail -f ~/openvms/console.log</code>",
-        "copy": "tail -f ~/openvms/console.log",
-        "desc": "Follow the serial console log."
-      },
-      {
-        "cmd": "<code>echo \"screendump /tmp/vga.png -f png\" | socat - UNIX-CONNECT:$HOME/openvms/monitor.sock && open /tmp/vga.png</code>",
-        "copy": "echo \"screendump /tmp/vga.png -f png\" | socat - UNIX-CONNECT:$HOME/openvms/monitor.sock && open /tmp/vga.png",
-        "desc": "Screenshot the VM's screen."
-      },
-      {
-        "cmd": "<code>echo \"savevm vms-clean\" | socat - UNIX-CONNECT:$HOME/openvms/monitor.sock</code>",
-        "copy": "echo \"savevm vms-clean\" | socat - UNIX-CONNECT:$HOME/openvms/monitor.sock",
-        "desc": "Snapshot the running VM (guide Step 10). Restore by adding <code>-loadvm vms-clean</code> to the script."
-      },
-      {
-        "cmd": "<code>echo \"info status\" | socat - UNIX-CONNECT:$HOME/openvms/monitor.sock</code>",
-        "copy": "echo \"info status\" | socat - UNIX-CONNECT:$HOME/openvms/monitor.sock",
-        "desc": "Is the VM running or paused?"
-      }
-    ],
-    "after": "<p class=\"callout\"><strong>Avoid for now:</strong> <code>HEADLESS=1 ./boot-vms.sh</code> hangs VMS right after <code>%GCDRIVER-I-INITDRV</code>. Sending <code>quit</code> to the monitor is a hard power-off, so use <code>@SYS$SYSTEM:SHUTDOWN</code> inside VMS instead.</p>"
   }
 ];

@@ -1,14 +1,26 @@
 /* Shared styles. One reading column; command tables in two columns, filter bar sticky on the cheat sheet. */
 :root {
-  --bg: #f4f6f9;
-  --surface: #ffffff;
-  --fg: #19212e;
-  --muted: #5b6678;
-  --rule: #d8dee8;
-  --accent: #1f4fa3;
-  --code-bg: #e8edf5;
-  --warn: #a3410f;
-  --warn-bg: #fbeee6;
+  /* Light theme: muted blue-grey "paper" instead of near-white, so it's easy on the eyes. */
+  --bg: #e4e8ee;
+  --surface: #eef1f5;
+  --fg: #1c2431;
+  --muted: #4f5a6c;
+  --rule: #c6cdd8;
+  --accent: #1c4794;
+  --code-bg: #d7dde7;
+  --warn: #93390b;
+  --warn-bg: #efdfd3;
+  /* Logo: brand blue with a soft shadow; turned white in dark mode. */
+  --logo-filter: drop-shadow(0 2px 3px rgb(28 36 49 / 0.28));
+  /* Syntax highlighting (DCL and shell) */
+  --hl-cmd: #1c4794;
+  --hl-flag: #6e2f91;
+  --hl-str: #2c6a1f;
+  --hl-path: #8a4100;
+  --hl-var: #a11d55;
+  --hl-num: #0b6670;
+  --hl-op: #4f5a6c;
+  --hl-com: #566070;
   --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
   --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -17,11 +29,15 @@
   :root:not([data-theme="light"]) {
     --bg: #0e131d; --surface: #151c29; --fg: #e2e8f2; --muted: #98a4b8; --rule: #273246;
     --accent: #86abf0; --code-bg: #1c2536; --warn: #f2a476; --warn-bg: #2a1d16; color-scheme: dark;
+    --logo-filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgb(0 0 0 / 0.65));
+    --hl-cmd: #86abf0; --hl-flag: #d0a6f5; --hl-str: #9ed49a; --hl-path: #f0b072; --hl-var: #f39ac0; --hl-num: #7fd3d8; --hl-op: #98a4b8; --hl-com: #8f9bb0;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e131d; --surface: #151c29; --fg: #e2e8f2; --muted: #98a4b8; --rule: #273246;
   --accent: #86abf0; --code-bg: #1c2536; --warn: #f2a476; --warn-bg: #2a1d16; color-scheme: dark;
+    --logo-filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgb(0 0 0 / 0.65));
+    --hl-cmd: #86abf0; --hl-flag: #d0a6f5; --hl-str: #9ed49a; --hl-path: #f0b072; --hl-var: #f39ac0; --hl-num: #7fd3d8; --hl-op: #98a4b8; --hl-com: #8f9bb0;
 }
 * { box-sizing: border-box; }
 html { color-scheme: light; }
@@ -47,22 +63,30 @@ code, kbd { font-family: var(--font-mono); font-size: 0.92em; }
 :not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
 kbd { border: 1px solid var(--rule); border-bottom-width: 2px; background: var(--surface); padding: 0 5px; border-radius: 4px; white-space: nowrap; }
 
-.filter { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; border-bottom: 1px solid var(--rule); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+/* Search bar and section links stick together (src/lib/StickyBar.svelte). */
+.sticky-bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
+.filter { padding-block: 10px 0; display: flex; gap: 12px; align-items: center; }
 .filter input { flex: 1 1 240px; min-width: 0; font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--fg); }
 .filter input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.filter .hint { font-size: 13px; color: var(--muted); }
-nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-block: 14px 4px; font-size: 13px; }
+.filter .hint { font-size: 13px; color: var(--muted); white-space: nowrap; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-block: 10px; font-size: 13px; }
+/* On phones, one scrolling row so the sticky bar doesn't eat the screen. */
+@media (max-width: 640px) {
+  .sticky-bar nav.toc { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+}
 nav.toc a { color: var(--accent); text-decoration: none; }
 nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
 
-section { padding-block: 34px 0; display: grid; gap: 14px; scroll-margin-top: 70px; }
+section { padding-block: 34px 0; display: grid; gap: 14px; scroll-margin-top: 20px; }
+/* Below the sticky bar where there is one; the fallback ≈ its height, for #links opened before JS runs. */
+body:has(.sticky-bar) section { scroll-margin-top: calc(var(--sticky-h, 95px) - 16px); }
 section > .intro { color: var(--muted); }
 
 .spec { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
 .spec-line { overflow-x: auto; }
 .spec-parts { display: inline-flex; gap: 2px; font-family: var(--font-mono); font-size: clamp(14px, 2.6vw, 19px); white-space: nowrap; }
 .spec-parts span { display: inline-grid; justify-items: center; gap: 4px; }
-.spec-parts b { font-weight: 500; padding: 2px 3px; border-bottom: 2px solid var(--accent); }
+.spec-parts b { font-weight: 500; padding: 2px 3px; border-bottom: 2px solid currentColor; } /* each part takes its syntax colour */
 .spec-parts small { font-family: var(--font-body); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 24px; }
 .notes div { min-width: 0; }
@@ -79,7 +103,6 @@ td.cmd code { background: none; padding: 0; font-weight: 500; color: var(--fg); 
 td.cmd { cursor: copy; }
 td.cmd:hover code, td.cmd:focus-visible code { color: var(--accent); }
 td.cmd:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-td.unix code { color: var(--muted); }
 .copied td.cmd code { color: var(--accent); }
 .copied td.cmd code::after { content: "  copied"; font-family: var(--font-body); font-size: 11px; color: var(--accent); }
 
@@ -104,6 +127,11 @@ footer a { color: var(--accent); }
 /* Site navigation */
 .site-nav { display: flex; gap: 4px 18px; flex-wrap: wrap; align-items: center; padding-block: 18px 0; font-size: 14px; }
 .site-nav .brand { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--fg); text-decoration: none; margin-right: auto; }
+/* One row when it fits; otherwise brand and theme toggle on top, links on their own row (scrolls on phones). */
+.site-nav .links { display: flex; gap: 4px 18px; }
+@media (max-width: 900px) {
+  .site-nav .links { order: 3; flex-basis: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 2px; }
+}
 .site-nav a.link { color: var(--muted); text-decoration: none; padding-block: 2px; border-bottom: 2px solid transparent; }
 .site-nav a.link:hover, .site-nav a.link:focus-visible { color: var(--fg); }
 .site-nav a.link[aria-current="page"] { color: var(--fg); border-bottom-color: var(--accent); }
@@ -120,3 +148,30 @@ a { color: var(--accent); }
 .mine strong { color: var(--accent); }
 .perf { max-width: 520px; }
 .perf td:first-child { width: auto; }
+
+/* Bulleted point lists on prose pages (Why VMS?, Run It on a PC). */
+.points { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 75ch; }
+
+/* Title banner with the OpenVMS logo on the right; stacks above the title on narrow screens. */
+header.banner { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 40px; }
+.banner-text { display: grid; gap: 10px; min-width: 0; }
+/* Pinned to the top, not centred, so a two-line title on one page doesn't move it. */
+.banner-logo { align-self: start; margin-top: 51px; width: clamp(160px, 22vw, 230px); height: auto; display: block; filter: var(--logo-filter); }
+footer .tm { margin-top: 8px; font-size: 12px; }
+/* Site-wide credit line under every page's footer (src/routes/+layout.svelte). */
+.site-credit { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--muted); max-width: none; }
+.site-credit a { color: var(--accent); }
+@media (max-width: 640px) {
+  header.banner { grid-template-columns: minmax(0, 1fr); }
+  .banner-logo { order: -1; width: 150px; margin-top: 0; }
+}
+
+/* Syntax highlighting tokens (see src/lib/highlight.js) */
+.hl-cmd { color: var(--hl-cmd); font-weight: 600; }
+.hl-flag { color: var(--hl-flag); }
+.hl-str { color: var(--hl-str); }
+.hl-path { color: var(--hl-path); }
+.hl-var { color: var(--hl-var); }
+.hl-num { color: var(--hl-num); }
+.hl-op { color: var(--hl-op); }
+.hl-com { color: var(--hl-com); font-style: italic; }

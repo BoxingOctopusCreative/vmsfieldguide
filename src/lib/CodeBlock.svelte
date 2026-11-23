@@ -1,5 +1,6 @@
 <script>
 	import { copyText } from './copy.js';
+	import { highlight } from './highlight.js';
 
 	/** @type {{ code: string, lang?: string }} */
 	let { code, lang = 'shell' } = $props();
@@ -19,7 +20,7 @@
 		<span>{lang}</span>
 		<button type="button" onclick={copy}>{copied ? 'Copied' : 'Copy'}</button>
 	</div>
-	<pre bind:this={pre}><code>{code.trim()}</code></pre>
+	<pre bind:this={pre}><code>{@html highlight(code.trim(), lang)}</code></pre>
 </div>
 
 <style>
