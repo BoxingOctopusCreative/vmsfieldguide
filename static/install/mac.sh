@@ -86,6 +86,8 @@ EOF
 # ---------------------------------------------------------------- helpers
 
 expand_path() { # expand a leading ~ in paths passed as arguments
+	# Matching a literal "~" is the point here, so the tilde stays quoted.
+	# shellcheck disable=SC2088
 	case "$1" in
 	"~") printf '%s\n' "$HOME" ;;
 	"~/"*) printf '%s\n' "$HOME/${1#\~/}" ;;

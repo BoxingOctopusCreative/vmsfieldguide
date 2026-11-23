@@ -1,0 +1,64 @@
+name: Test
+
+# Pull requests run these jobs. The release workflow calls this before it deploys.
+
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+# A new push to a pull request cancels its run still in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  site:
+    name: Check and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Check the output
+        run: |
+          set -euo pipefail
+          for page in index compare why qemu pc; do
+            test -s "build/${page}.html" || { echo "::error::build/${page}.html is missing"; exit 1; }
+          done
+          for file in robots.txt sitemap.xml install/mac.sh favicon.svg og-image.png; do
+            test -s "build/${file}" || { echo "::error::build/${file} is missing"; exit 1; }
+          done
+          cmp -s static/install/mac.sh build/install/mac.sh || { echo "::error::the built mac.sh differs from static/install/mac.sh"; exit 1; }
+
+  scripts:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The quickstart runs on people's Macs, often under macOS's Bash 3.2, so keep it clean.
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          for f in static/install/*.sh scripts/release/*.sh; do
+            bash -n "$f"
+          done
+
+      - name: ShellCheck
+        run: shellcheck static/install/*.sh scripts/release/*.sh

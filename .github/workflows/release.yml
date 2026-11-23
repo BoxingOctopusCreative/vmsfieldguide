@@ -1,0 +1,247 @@
+name: Release
+
+# Every pull request merged into main is tested, deployed to Vercel production, then released.
+# Its label picks the version bump: release:major, release:minor or release:patch (the default
+# when there's none), or release:none to merge without deploying or releasing.
+#
+# Vercel's own Git deploys of main are off (vercel.json), so this is the only way to production.
+# Needs repository secrets VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID, and optionally the
+# repository variable SITE_URL (e.g. https://vms.example.com) for canonical and Open Graph URLs.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: read
+
+# Releases go out one at a time, in merge order, so versions never collide.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      bump: ${{ steps.version.outputs.bump }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Choose the version bump
+        id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          INPUT_BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "::error::Releases are made from main, not $GITHUB_REF"
+            exit 1
+          fi
+          if [ "$EVENT" = workflow_dispatch ]; then
+            echo "bump=$INPUT_BUMP" >> "$GITHUB_OUTPUT"
+            echo "Manual release: $INPUT_BUMP" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # The pull request this push merged, if any.
+          pr=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+            --jq '[.[] | select(.merged_at != null and .base.ref == "main")][0] // empty')
+          if [ -z "$pr" ]; then
+            echo "::notice::$GITHUB_SHA wasn't merged from a pull request; not releasing. Run this workflow by hand to release it."
+            echo "bump=none" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          number=$(jq -r .number <<<"$pr")
+          if ! bump=$(jq -r '.labels[].name' <<<"$pr" | scripts/release/bump-from-labels.sh 2>&1); then
+            echo "::error::#$number: $bump"
+            exit 1
+          fi
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+          echo "Merged #$number, so the bump is **$bump**" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Work out the version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          BUMP: ${{ steps.bump.outputs.bump }}
+        run: |
+          set -euo pipefail
+          if [ "$BUMP" = none ]; then
+            echo "bump=none" >> "$GITHUB_OUTPUT"
+            echo "Not releasing, so not deploying." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git fetch origin main --tags --force
+          head=$(git rev-parse HEAD)
+          latest=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          if [ -n "$latest" ]; then
+            latest_sha=$(git rev-parse "${latest}^{}")
+            if [ "$latest_sha" = "$head" ]; then
+              if ! gh release view "$latest" >/dev/null 2>&1; then
+                echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+                echo "version=$latest" >> "$GITHUB_OUTPUT"
+                echo "Finishing ${latest}. The tag exists and the GitHub release does not." >> "$GITHUB_STEP_SUMMARY"
+                exit 0
+              fi
+              if [ "$EVENT" != workflow_dispatch ]; then
+                echo "bump=none" >> "$GITHUB_OUTPUT"
+                echo "${latest} is already released." >> "$GITHUB_STEP_SUMMARY"
+                exit 0
+              fi
+            fi
+          fi
+
+          version=$(scripts/release/next-version.sh "$latest" "$BUMP")
+          if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+            echo "::error::$version is already tagged"
+            exit 1
+          fi
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "${latest:-no previous release} to **$version**" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check the Vercel secrets
+        if: steps.version.outputs.bump != 'none'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          missing=""
+          [ -n "$VERCEL_TOKEN" ] || missing="$missing VERCEL_TOKEN"
+          [ -n "$VERCEL_ORG_ID" ] || missing="$missing VERCEL_ORG_ID"
+          [ -n "$VERCEL_PROJECT_ID" ] || missing="$missing VERCEL_PROJECT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Can't deploy: set these repository secrets first:$missing"
+            exit 1
+          fi
+
+  test:
+    name: Test
+    needs: plan
+    if: ${{ needs.plan.result == 'success' && needs.plan.outputs.bump != 'none' }}
+    uses: ./.github/workflows/test.yml
+
+  deploy:
+    name: Deploy ${{ needs.plan.outputs.version }} to production
+    needs: [plan, test]
+    if: ${{ needs.plan.result == 'success' && needs.plan.outputs.bump != 'none' && needs.test.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      SITE_URL: ${{ vars.SITE_URL }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install the Vercel CLI
+        run: npm install --global vercel@66.2.0
+
+      - name: Pull the project settings
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy
+        id: deploy
+        run: |
+          set -euo pipefail
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed to $url" >> "$GITHUB_STEP_SUMMARY"
+
+  release:
+    name: Publish ${{ needs.plan.outputs.version }}
+    needs: [plan, deploy]
+    if: ${{ needs.plan.result == 'success' && needs.plan.outputs.bump != 'none' && needs.deploy.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Publish the GitHub release
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+          DEPLOY_URL: ${{ needs.deploy.outputs.url }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git fetch origin main --tags --force
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "$VERSION is already released."
+            exit 0
+          fi
+
+          dist="${RUNNER_TEMP}/dist"
+          mkdir -p "$dist"
+          cp static/install/mac.sh "$dist/mac.sh"
+          (cd "$dist" && sha256sum mac.sh > SHA256SUMS)
+          site="${SITE_URL:-$DEPLOY_URL}"
+
+          latest=$(git tag --list 'v*' --sort=-v:refname | awk -v current="$VERSION" '$0 != current && /^v[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+          notes="${RUNNER_TEMP}/notes.md"
+          {
+            echo "Deployed to ${site}"
+            echo
+            echo "The Mac quickstart script for this release is attached. To check it before running it:"
+            echo
+            echo '```sh'
+            echo "curl -fsSLO https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/mac.sh"
+            echo "curl -fsSLO https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/SHA256SUMS"
+            echo "shasum -a 256 -c SHA256SUMS"
+            echo '```'
+            echo
+            echo "Changes:"
+            echo
+            if [ -n "$latest" ]; then
+              log_range="${latest}..HEAD"
+            else
+              log_range="HEAD"
+            fi
+            git log --pretty=format:'- %s' "$log_range" || true
+            echo
+          } > "$notes"
+
+          gh release create "$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --notes-file "$notes" \
+            "$dist/mac.sh" \
+            "$dist/SHA256SUMS"
