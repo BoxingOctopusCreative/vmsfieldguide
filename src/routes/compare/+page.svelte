@@ -6,6 +6,9 @@
 	import { copyText } from '#lib/copy.js';
 	import { highlight } from '#lib/highlight.js';
 	import { resolve } from '$app/paths';
+	import FilterInput from '#lib/FilterInput.svelte';
+	import SectionLinks from '#lib/SectionLinks.svelte';
+	import { Table, TableHead, TableHeadCell, TableBody, TableBodyRow, TableBodyCell } from 'flowbite-svelte';
 
 	let query = $state('');
 	let term = $derived(query.trim().toLowerCase());
@@ -39,13 +42,6 @@
 		}
 	}
 
-	/** @param {KeyboardEvent} e @param {string} key @param {string} text */
-	function onKey(e, key, text) {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			copy(key, text, e);
-		}
-	}
 </script>
 
 <Seo title="VMS vs. Unix" description="OpenVMS DCL commands side by side with their closest Unix, Linux and macOS equivalents, with notes on where they differ." />
@@ -57,97 +53,80 @@
 </Banner>
 
 <StickyBar>
-<div class="filter">
-	<input type="search" bind:value={query} placeholder="Filter, e.g. grep, chmod, process…" autocomplete="off" aria-label="Filter commands" />
-	<span class="hint">{term ? `${shownCount} of ${total} commands` : `${total} commands`}</span>
-</div>
-<nav class="toc" aria-label="Sections">
-	{#each groups as g (g.id)}<a href="#{g.id}">{g.title}</a>{/each}
-</nav>
+	<FilterInput bind:value={query} placeholder="Filter, e.g. grep, chmod, process…" label="Filter commands" count={term ? `${shownCount} of ${total} commands` : `${total} commands`} />
+	<SectionLinks links={groups.map((g) => /** @type {[string, string]} */ ([g.id, g.title]))} />
 </StickyBar>
 
 {#each filtered as g (g.id)}
 	<section id={g.id} hidden={term !== '' && g.shown.length === 0}>
 		<h2>{g.title}</h2>
 		{#if g.intro}<p class="intro">{g.intro}</p>{/if}
-		<div class="tbl">
-			<table class="compare">
-				<thead><tr><th>DCL</th><th>Unix</th><th>Notes</th></tr></thead>
-				<tbody>
+		<div class="cmd-table compare">
+			<Table hoverable>
+				<TableHead><TableHeadCell>DCL</TableHeadCell><TableHeadCell>Unix</TableHeadCell><TableHeadCell>Notes</TableHeadCell></TableHead>
+				<TableBody>
 					{#each g.shown as r (r.dcl)}
 						{@const k = `${g.id}:${r.dcl}`}
-						<tr>
+						<TableBodyRow>
 							{#if copyable(r.dcl)}
-								<td class="cmd" class:copied={copiedKey === k + ':d'} tabindex="0" title="Copy" onclick={(e) => copy(k + ':d', r.dcl, e)} onkeydown={(e) => onKey(e, k + ':d', r.dcl)}><code>{@html highlight(r.dcl, 'dcl')}</code></td>
+								<TableBodyCell class="cmd dcl {copiedKey === k + ':d' ? 'copied' : ''}" title="Copy" onclick={(/** @type {Event} */ e) => copy(k + ':d', r.dcl, e)}><code>{@html highlight(r.dcl, 'dcl')}</code></TableBodyCell>
 							{:else}
-								<td class="cmd static"><code>{r.dcl}</code></td>
+								<TableBodyCell class="cmd dcl static"><code>{r.dcl}</code></TableBodyCell>
 							{/if}
 							{#if copyable(r.unix)}
-								<td class="cmd unixcmd" class:copied={copiedKey === k + ':u'} tabindex="0" title="Copy" onclick={(e) => copy(k + ':u', r.unix, e)} onkeydown={(e) => onKey(e, k + ':u', r.unix)}><code>{@html highlight(r.unix, 'shell')}</code></td>
+								<TableBodyCell class="cmd unixcmd {copiedKey === k + ':u' ? 'copied' : ''}" title="Copy" onclick={(/** @type {Event} */ e) => copy(k + ':u', r.unix, e)}><code>{@html highlight(r.unix, 'shell')}</code></TableBodyCell>
 							{:else}
-								<td class="cmd unixcmd static"><code>{r.unix}</code></td>
+								<TableBodyCell class="cmd unixcmd static"><code>{r.unix}</code></TableBodyCell>
 							{/if}
-							<td class="note">{#if r.note}{@html renderNote(r.note)}{/if}</td>
-						</tr>
+							<TableBodyCell class="note">{#if r.note}{@html renderNote(r.note)}{/if}</TableBodyCell>
+						</TableBodyRow>
 					{/each}
-				</tbody>
-			</table>
+				</TableBody>
+			</Table>
 		</div>
 	</section>
 {/each}
 
 {#if term && shownCount === 0}<p class="empty">No commands match that filter.</p>{/if}
 
-<footer>
+<footer class="page-footer">
 	Unix commands are shown in their common Linux form; macOS differences are in the notes. Check <code>HELP</code> on VMS and
 	<code>man</code> on Unix for the full options.
 	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>
 
 <style>
-	.compare td:first-child {
+	/* The table cells are Flowbite components, so these reach them with :global inside .compare. */
+	.compare :global(td.dcl) {
 		width: 36%;
 	}
-	.compare td.unixcmd {
+	.compare :global(td.unixcmd) {
 		width: 28%;
 	}
-	.compare td.unixcmd code {
-		color: var(--fg);
-	}
-	.compare td.static {
+	.compare :global(td.static) {
 		cursor: default;
 	}
-	.compare td.static code {
+	.compare :global(td.static code) {
 		color: var(--muted);
 		font-weight: 400;
 	}
-	.compare td.note {
+	.compare :global(td.note) {
 		color: var(--muted);
 		font-size: 13px;
 	}
-	/* Per-cell copy feedback (the shared style flags a whole row). */
-	.compare td.copied code {
-		color: var(--accent);
-	}
-	.compare td.copied code::after {
-		content: '  copied';
-		font-family: var(--font-body);
-		font-size: 11px;
-		color: var(--accent);
-	}
 	@media (max-width: 560px) {
-		.compare td:first-child,
-		.compare td.unixcmd {
+		.compare :global(td.dcl),
+		.compare :global(td.unixcmd) {
 			width: auto;
 		}
-		.compare td.unixcmd::before {
+		.compare :global(td.unixcmd)::before {
 			content: 'Unix  ';
 			font-size: 11px;
 			letter-spacing: 0.06em;
 			text-transform: uppercase;
 			color: var(--muted);
 		}
-		.compare td.note:empty {
+		.compare :global(td.note:empty) {
 			display: none;
 		}
 	}

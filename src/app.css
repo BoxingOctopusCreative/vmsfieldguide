@@ -1,4 +1,66 @@
-/* Shared styles. One reading column; command tables in two columns, filter bar sticky on the cheat sheet. */
+/* Shared styles: Tailwind CSS v4 + Flowbite Svelte, with the site's own colour scheme. */
+@import 'tailwindcss';
+@source '../node_modules/flowbite-svelte/dist';
+
+/* Dark mode follows the site's theme toggle (data-theme on <html>), or the system setting
+   when no choice is saved. Flowbite's dark: classes use this too. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+}
+
+/* The site's palette, as Tailwind colours. Flowbite builds every component from white, gray and
+   primary, so those are remapped onto this scheme: "white" is the soft light surface (no glaring
+   white), the gray ramp runs from the light page to the dark page, and primary is the accent blue. */
+@theme {
+  --font-sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-display: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+
+  --color-white: #eef1f5;
+  --color-gray-50: #e9edf2;
+  --color-gray-100: #e4e8ee;
+  --color-gray-200: #c6cdd8;
+  --color-gray-300: #b3bccb;
+  --color-gray-400: #98a4b8;
+  --color-gray-500: #5d687b;
+  --color-gray-600: #3a465c;
+  --color-gray-700: #273246;
+  --color-gray-800: #151c29;
+  --color-gray-900: #0e131d;
+  --color-gray-950: #090d14;
+
+  --color-primary-50: #eef3fc;
+  --color-primary-100: #dce6f9;
+  --color-primary-200: #bcd0f4;
+  --color-primary-300: #a1bdf2;
+  --color-primary-400: #93b4f1;
+  --color-primary-500: #86abf0;
+  --color-primary-600: #1c4794;
+  --color-primary-700: #1c4794;
+  --color-primary-800: #163a78;
+  --color-primary-900: #0e264f;
+}
+
+/* Theme-aware tokens as utilities: bg-page, bg-surface, text-fg, text-muted, border-rule, … */
+@theme inline {
+  --color-page: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-code: var(--code-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+}
+
 :root {
   /* Light theme: muted blue-grey "paper" instead of near-white, so it's easy on the eyes. */
   --bg: #e4e8ee;
@@ -21,157 +83,131 @@
   --hl-num: #0b6670;
   --hl-op: #4f5a6c;
   --hl-com: #566070;
-  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme='light']) {
     --bg: #0e131d; --surface: #151c29; --fg: #e2e8f2; --muted: #98a4b8; --rule: #273246;
     --accent: #86abf0; --code-bg: #1c2536; --warn: #f2a476; --warn-bg: #2a1d16; color-scheme: dark;
     --logo-filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgb(0 0 0 / 0.65));
     --hl-cmd: #86abf0; --hl-flag: #d0a6f5; --hl-str: #9ed49a; --hl-path: #f0b072; --hl-var: #f39ac0; --hl-num: #7fd3d8; --hl-op: #98a4b8; --hl-com: #8f9bb0;
   }
 }
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --bg: #0e131d; --surface: #151c29; --fg: #e2e8f2; --muted: #98a4b8; --rule: #273246;
   --accent: #86abf0; --code-bg: #1c2536; --warn: #f2a476; --warn-bg: #2a1d16; color-scheme: dark;
-    --logo-filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgb(0 0 0 / 0.65));
-    --hl-cmd: #86abf0; --hl-flag: #d0a6f5; --hl-str: #9ed49a; --hl-path: #f0b072; --hl-var: #f39ac0; --hl-num: #7fd3d8; --hl-op: #98a4b8; --hl-com: #8f9bb0;
-}
-* { box-sizing: border-box; }
-html { color-scheme: light; }
-body { margin: 0; }
-[hidden] { display: none !important; }
-body {
-  background: var(--bg); color: var(--fg);
-  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 0 64px;
-}
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
-.wrap { max-width: 980px; margin: 0 auto; }
-header { padding-block: 40px 20px; display: grid; gap: 10px; }
-.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 44px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
-.lede { max-width: 65ch; color: var(--muted); margin: 0; }
-h2 { font-family: var(--font-display); font-size: 22px; margin: 0; text-wrap: balance; }
-h3 { font-family: var(--font-display); font-size: 16px; margin: 0; }
-p { margin: 0; max-width: 70ch; }
-code, kbd { font-family: var(--font-mono); font-size: 0.92em; }
-:not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
-kbd { border: 1px solid var(--rule); border-bottom-width: 2px; background: var(--surface); padding: 0 5px; border-radius: 4px; white-space: nowrap; }
-
-/* Search bar and section links stick together (src/lib/StickyBar.svelte). */
-.sticky-bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
-.filter { padding-block: 10px 0; display: flex; gap: 12px; align-items: center; }
-.filter input { flex: 1 1 240px; min-width: 0; font: inherit; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--fg); }
-.filter input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.filter .hint { font-size: 13px; color: var(--muted); white-space: nowrap; }
-nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-block: 10px; font-size: 13px; }
-/* On phones, one scrolling row so the sticky bar doesn't eat the screen. */
-@media (max-width: 640px) {
-  .sticky-bar nav.toc { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-}
-nav.toc a { color: var(--accent); text-decoration: none; }
-nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
-
-section { padding-block: 34px 0; display: grid; gap: 14px; scroll-margin-top: 20px; }
-/* Below the sticky bar where there is one; the fallback ≈ its height, for #links opened before JS runs. */
-body:has(.sticky-bar) section { scroll-margin-top: calc(var(--sticky-h, 95px) - 16px); }
-section > .intro { color: var(--muted); }
-
-.spec { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
-.spec-line { overflow-x: auto; }
-.spec-parts { display: inline-flex; gap: 2px; font-family: var(--font-mono); font-size: clamp(14px, 2.6vw, 19px); white-space: nowrap; }
-.spec-parts span { display: inline-grid; justify-items: center; gap: 4px; }
-.spec-parts b { font-weight: 500; padding: 2px 3px; border-bottom: 2px solid currentColor; } /* each part takes its syntax colour */
-.spec-parts small { font-family: var(--font-body); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
-.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 24px; }
-.notes div { min-width: 0; }
-.notes h3 { margin-bottom: 4px; }
-.notes p { font-size: 14px; color: var(--muted); }
-
-.tbl { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { text-align: left; font-family: var(--font-body); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--rule); }
-td { padding: 8px 14px; border-top: 1px solid var(--rule); vertical-align: top; }
-tbody tr:first-child td { border-top: none; }
-td:first-child { width: 46%; }
-td.cmd code { background: none; padding: 0; font-weight: 500; color: var(--fg); overflow-wrap: anywhere; }
-td.cmd { cursor: copy; }
-td.cmd:hover code, td.cmd:focus-visible code { color: var(--accent); }
-td.cmd:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.copied td.cmd code { color: var(--accent); }
-.copied td.cmd code::after { content: "  copied"; font-family: var(--font-body); font-size: 11px; color: var(--accent); }
-
-.callout { background: var(--warn-bg); border-left: 3px solid var(--warn); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 14px; }
-.callout strong { color: var(--warn); }
-.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 24px; font-size: 14px; }
-.keys div { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
-.keys kbd { flex: none; min-width: 64px; text-align: center; }
-.empty { color: var(--muted); padding-block: 30px; }
-footer { padding-block: 40px 0; font-size: 13px; color: var(--muted); }
-footer a { color: var(--accent); }
-@media (max-width: 560px) {
-  td:first-child { width: auto; }
-  table, tbody, tr, td { display: block; }
-  thead { display: none; }
-  tr { border-top: 1px solid var(--rule); padding-block: 6px; }
-  tbody tr:first-child { border-top: none; }
-  td { border-top: none; padding: 2px 14px; }
-}
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-
-/* Site navigation */
-.site-nav { display: flex; gap: 4px 18px; flex-wrap: wrap; align-items: center; padding-block: 18px 0; font-size: 14px; }
-.site-nav .brand { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--fg); text-decoration: none; margin-right: auto; }
-/* One row when it fits; otherwise brand and theme toggle on top, links on their own row (scrolls on phones). */
-.site-nav .links { display: flex; gap: 4px 18px; }
-@media (max-width: 900px) {
-  .site-nav .links { order: 3; flex-basis: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; padding-bottom: 2px; }
-}
-.site-nav a.link { color: var(--muted); text-decoration: none; padding-block: 2px; border-bottom: 2px solid transparent; }
-.site-nav a.link:hover, .site-nav a.link:focus-visible { color: var(--fg); }
-.site-nav a.link[aria-current="page"] { color: var(--fg); border-bottom-color: var(--accent); }
-
-/* Guide page */
-a { color: var(--accent); }
-.credit { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 18px; font-size: 14px; display: grid; gap: 6px; }
-.credit p { max-width: none; }
-.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; display: grid; gap: 0; }
-.step { counter-increment: step; padding-block: 34px 0; display: grid; gap: 12px; scroll-margin-top: 20px; }
-.step h2::before { content: "Step " counter(step); display: block; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.step ul, .step ol { margin: 0; padding-left: 20px; max-width: 70ch; display: grid; gap: 4px; }
-.mine { border-left: 3px solid var(--accent); background: var(--surface); padding: 10px 16px; border-radius: 0 8px 8px 0; font-size: 14px; display: grid; gap: 6px; }
-.mine strong { color: var(--accent); }
-.perf { max-width: 520px; }
-.perf td:first-child { width: auto; }
-
-/* Bulleted point lists on prose pages (Why VMS?, Run It on a PC). */
-.points { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 75ch; }
-
-/* Title banner with the OpenVMS logo on the right; stacks above the title on narrow screens. */
-header.banner { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 40px; }
-.banner-text { display: grid; gap: 10px; min-width: 0; }
-/* Pinned to the top, not centred, so a two-line title on one page doesn't move it. */
-.banner-logo { align-self: start; margin-top: 51px; width: clamp(160px, 22vw, 230px); height: auto; display: block; filter: var(--logo-filter); }
-footer .tm { margin-top: 8px; font-size: 12px; }
-/* Site-wide credit line under every page's footer (src/routes/+layout.svelte). */
-.site-credit { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--muted); max-width: none; }
-.site-credit a { color: var(--accent); }
-@media (max-width: 640px) {
-  header.banner { grid-template-columns: minmax(0, 1fr); }
-  .banner-logo { order: -1; width: 150px; margin-top: 0; }
+  --logo-filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgb(0 0 0 / 0.65));
+  --hl-cmd: #86abf0; --hl-flag: #d0a6f5; --hl-str: #9ed49a; --hl-path: #f0b072; --hl-var: #f39ac0; --hl-num: #7fd3d8; --hl-op: #98a4b8; --hl-com: #8f9bb0;
 }
 
-/* Syntax highlighting tokens (see src/lib/highlight.js) */
-.hl-cmd { color: var(--hl-cmd); font-weight: 600; }
-.hl-flag { color: var(--hl-flag); }
-.hl-str { color: var(--hl-str); }
-.hl-path { color: var(--hl-path); }
-.hl-var { color: var(--hl-var); }
-.hl-num { color: var(--hl-num); }
-.hl-op { color: var(--hl-op); }
-.hl-com { color: var(--hl-com); font-style: italic; }
+/* Element defaults. In a layer, so Flowbite's utility classes override them. */
+@layer base {
+  html { color-scheme: light; }
+  [hidden] { display: none !important; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-sans); font-size: 15px; line-height: 1.55;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-bottom: 64px;
+  }
+  body::before { content: ''; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 6vw, 44px); line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { font-family: var(--font-display); font-weight: 700; font-size: 22px; text-wrap: balance; }
+  h3 { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  p { max-width: 70ch; }
+  /* Plain text links are underlined; Flowbite links (nav, buttons) bring their own classes. */
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:not([class]) { text-decoration: underline; }
+  code, kbd { font-family: var(--font-mono); font-size: 0.92em; }
+  :not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  strong, b { font-weight: 600; }
+  /* <kbd> inside data strings gets the same look as Flowbite's Kbd component, a little tighter for inline use. */
+  kbd { @apply rounded-lg border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap text-gray-800 dark:border-gray-500 dark:bg-gray-600 dark:text-gray-100; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+}
+
+/* Site-specific pieces Flowbite has no component for. */
+@layer components {
+  .wrap { max-width: 980px; margin: 0 auto; }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .lede { max-width: 65ch; color: var(--muted); }
+
+  /* Title banner with the OpenVMS logo on the right; stacks above the title on narrow screens. */
+  .banner { padding-block: 40px 20px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 40px; }
+  .banner-text { display: grid; gap: 10px; min-width: 0; }
+  /* Pinned to the top, not centred, so a two-line title on one page doesn't move it. */
+  .banner-logo { align-self: start; margin-top: 51px; width: clamp(160px, 22vw, 230px); height: auto; display: block; filter: var(--logo-filter); }
+  @media (max-width: 640px) {
+    .banner { grid-template-columns: minmax(0, 1fr); }
+    .banner-logo { order: -1; width: 150px; margin-top: 0; }
+  }
+
+  /* Search bar and section links stick together (src/lib/StickyBar.svelte). */
+  .sticky-bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; padding-block: 10px; }
+  /* On phones, one scrolling row so the sticky bar doesn't eat the screen. */
+  @media (max-width: 640px) {
+    .sticky-bar .toc { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+  }
+
+  section { padding-block: 34px 0; display: grid; gap: 14px; scroll-margin-top: 20px; }
+  /* Let grid children (Flowbite Cards are flex columns) shrink, so a wide line that scrolls on its own,
+     like the file-spec anatomy, can't widen the whole page on phones. */
+  section > *, .notes > *, .step > * { min-width: 0; }
+  /* Below the sticky bar where there is one; the fallback ≈ its height, for #links opened before JS runs. */
+  body:has(.sticky-bar) section { scroll-margin-top: calc(var(--sticky-h, 110px) - 16px); }
+  section > .intro { color: var(--muted); }
+
+  /* File specification anatomy on the cheat sheet */
+  .spec-line { overflow-x: auto; }
+  .spec-parts { display: inline-flex; gap: 2px; font-family: var(--font-mono); font-size: clamp(14px, 2.6vw, 19px); white-space: nowrap; }
+  .spec-parts span { display: inline-grid; justify-items: center; gap: 4px; }
+  .spec-parts b { font-weight: 500; padding: 2px 3px; border-bottom: 2px solid currentColor; } /* each part takes its syntax colour */
+  .spec-parts small { font-family: var(--font-sans); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 24px; font-size: 14px; }
+  .keys div { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
+  .keys kbd { flex: none; min-width: 64px; text-align: center; }
+  .empty { color: var(--muted); padding-block: 30px; }
+
+  /* Command tables: click a command cell to copy it. */
+  /* Flowbite's TableBodyCell wraps clickable content in a <button>, which handles the keyboard. */
+  .cmd-table td.cmd { cursor: copy; }
+  .cmd-table td.cmd button { display: block; width: 100%; text-align: left; cursor: copy; border-radius: 4px; }
+  .cmd-table td.cmd button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cmd-table td.cmd code { background: none; padding: 0; font-weight: 500; color: var(--fg); overflow-wrap: anywhere; white-space: normal; }
+  .cmd-table td.cmd:hover code, .cmd-table td.cmd button:focus-visible code { color: var(--accent); }
+  .cmd-table .copied td.cmd code, .cmd-table td.cmd.copied code { color: var(--accent); }
+  .cmd-table .copied td.cmd code::after, .cmd-table td.cmd.copied code::after { content: '  copied'; font-family: var(--font-sans); font-size: 11px; color: var(--accent); }
+  .cmd-table td, .cmd-table th { vertical-align: top; }
+  /* Phones: stack each row instead of scrolling a wide table. */
+  @media (max-width: 560px) {
+    .cmd-table table, .cmd-table tbody, .cmd-table tr, .cmd-table td { display: block; width: auto; }
+    .cmd-table thead { display: none; }
+    .cmd-table td { padding-block: 2px; }
+    .cmd-table tr { padding-block: 6px; }
+  }
+
+  /* Numbered steps on the setup guides */
+  .steps { counter-reset: step; display: grid; }
+  .step { counter-increment: step; padding-block: 34px 0; display: grid; gap: 12px; scroll-margin-top: 20px; }
+  .step h2::before { content: 'Step ' counter(step); display: block; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .step ul, .step ol { padding-left: 20px; max-width: 70ch; display: grid; gap: 4px; }
+  .step ul { list-style: disc; }
+  .step ol { list-style: decimal; }
+  .perf { max-width: 520px; }
+
+  footer.page-footer { padding-block: 40px 0; font-size: 13px; color: var(--muted); display: grid; gap: 8px; }
+  footer.page-footer .tm { font-size: 12px; }
+
+  /* Syntax highlighting tokens (see src/lib/highlight.js) */
+  .hl-cmd { color: var(--hl-cmd); font-weight: 600; }
+  .hl-flag { color: var(--hl-flag); }
+  .hl-str { color: var(--hl-str); }
+  .hl-path { color: var(--hl-path); }
+  .hl-var { color: var(--hl-var); }
+  .hl-num { color: var(--hl-num); }
+  .hl-op { color: var(--hl-op); }
+  .hl-com { color: var(--hl-com); font-style: italic; }
+}

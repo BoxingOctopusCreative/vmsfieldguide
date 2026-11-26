@@ -1,4 +1,6 @@
 <script>
+	import { Button } from 'flowbite-svelte';
+	import { Copy, Check } from '@lucide/svelte';
 	import { copyText } from './copy.js';
 	import { highlight } from './highlight.js';
 
@@ -15,19 +17,12 @@
 	}
 </script>
 
-<div class="codeblock">
-	<div class="bar">
+<div class="min-w-0 overflow-hidden rounded-lg border border-rule bg-code">
+	<div class="flex items-center justify-between border-b border-rule py-1.5 pr-2 pl-3.5 font-mono text-[11px] tracking-wider text-muted uppercase">
 		<span>{lang}</span>
-		<button type="button" onclick={copy}>{copied ? 'Copied' : 'Copy'}</button>
+		<Button color="alternative" size="xs" class="gap-1.5 px-2.5 py-1 normal-case" onclick={copy} aria-live="polite">
+			{#if copied}<Check size={14} aria-hidden="true" /> Copied{:else}<Copy size={14} aria-hidden="true" /> Copy{/if}
+		</Button>
 	</div>
-	<pre bind:this={pre}><code>{@html highlight(code.trim(), lang)}</code></pre>
+	<pre bind:this={pre} class="m-0 overflow-x-auto px-3.5 py-3 text-[13px] leading-normal"><code class="font-mono">{@html highlight(code.trim(), lang)}</code></pre>
 </div>
-
-<style>
-	.codeblock { border: 1px solid var(--rule); border-radius: 10px; background: var(--code-bg); overflow: hidden; min-width: 0; }
-	.bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--rule); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-	button { font: inherit; text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--accent); background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
-	button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-	pre { margin: 0; padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
-	code { font-family: var(--font-mono); }
-</style>
