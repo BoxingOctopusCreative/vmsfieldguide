@@ -64,7 +64,7 @@
 		<li>
 			<strong>The OpenVMS Community License</strong>, free for non-commercial use from
 			<a href={COMMUNITY} target="_blank" rel="noopener">VMS Software</a>. It comes as a RAR of about 1.3&nbsp;GB, named
-			like <code>community_2026.rar</code>, holding a ready-installed VMware disk. The license runs for 12 months.
+			like <code>community_2026.rar</code>, holding a ready-installed VMware disk. The license runs for 12 months. <a href={resolve('/get')}>Get OpenVMS</a> covers how to get it and what it allows.
 		</li>
 	</ul>
 </section>
@@ -190,5 +190,4 @@ sudo qemu-img snapshot -a clean /var/lib/libvirt/images/openvms.qcow2   # roll b
 <footer class="page-footer">
 	Settings checked against VSI's V9.2-3 <a href={INSTALL} target="_blank" rel="noopener">Installation Guide</a> and
 	<a href={NOTES} target="_blank" rel="noopener">Release Notes</a> in November 2026. Newer releases may change them.
-	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>

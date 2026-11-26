@@ -108,7 +108,7 @@
 				</TableBody>
 			</Table>
 		</div>
-		{#if s.after}<Callout kind="info">{@html s.after}</Callout>{/if}
+		{#if s.after}<Callout kind="info"><p>{@html s.after}</p></Callout>{/if}
 	</section>
 {/snippet}
 
@@ -129,5 +129,4 @@
 
 <footer class="page-footer">
 	For depth, use <code>HELP</code> on the VM itself, or VSI's documentation at <a href="https://docs.vmssoftware.com/" target="_blank" rel="noopener">docs.vmssoftware.com</a>.
-	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>

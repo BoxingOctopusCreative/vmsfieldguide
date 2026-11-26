@@ -92,7 +92,6 @@
 <footer class="page-footer">
 	Unix commands are shown in their common Linux form; macOS differences are in the notes. Check <code>HELP</code> on VMS and
 	<code>man</code> on Unix for the full options.
-	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>
 
 <style>

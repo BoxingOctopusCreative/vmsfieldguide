@@ -15,7 +15,7 @@ export const shareImage = {
 };
 
 /** Paths of every page, for the sitemap. */
-export const pages = ['/', '/compare', '/why', '/qemu', '/pc'];
+export const pages = ['/', '/compare', '/history', '/why', '/get', '/qemu', '/pc'];
 
 /** @param {string} path */
 export const absolute = (path) => (siteUrl ? siteUrl + path : path);

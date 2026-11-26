@@ -198,8 +198,7 @@
   .step ol { list-style: decimal; }
   .perf { max-width: 520px; }
 
-  footer.page-footer { padding-block: 40px 0; font-size: 13px; color: var(--muted); display: grid; gap: 8px; }
-  footer.page-footer .tm { font-size: 12px; }
+  footer.page-footer { padding-block: 40px 0; font-size: 13px; color: var(--muted); }
 
   /* Syntax highlighting tokens (see src/lib/highlight.js) */
   .hl-cmd { color: var(--hl-cmd); font-weight: 600; }
