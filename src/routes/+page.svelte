@@ -2,6 +2,10 @@
 	import Banner from '#lib/Banner.svelte';
 	import Seo from '#lib/Seo.svelte';
 	import StickyBar from '#lib/StickyBar.svelte';
+	import FilterInput from '#lib/FilterInput.svelte';
+	import SectionLinks from '#lib/SectionLinks.svelte';
+	import Callout from '#lib/Callout.svelte';
+	import { Card, Kbd, Table, TableHead, TableHeadCell, TableBody, TableBodyRow, TableBodyCell } from 'flowbite-svelte';
 	import { sections } from '#lib/sections.js';
 	import { copyText } from '#lib/copy.js';
 	import { highlight } from '#lib/highlight.js';
@@ -32,6 +36,25 @@
 			setTimeout(() => copiedKey === key && (copiedKey = ''), 1200);
 		}
 	}
+
+	const sectionLinks = /** @type {Array<[string, string]>} */ ([
+		['basics', 'Basics'], ['keys', 'Keys'], ['files', 'Files'], ['dirs', 'Directories'], ['info', 'System Info'],
+		['procs', 'Processes & Batch'], ['symbols', 'Symbols & Logicals'], ['users', 'Users'], ['net', 'TCP/IP & SSH'],
+		['admin', 'Admin & Shutdown']
+	]);
+	const notes = [
+		['Files Have Versions', 'Every save creates <code>;2</code>, <code>;3</code>, and so on. Nothing is overwritten. <code>PURGE</code> deletes the old versions, and <code>DELETE</code> needs a version number (<code>;*</code> for all of them).'],
+		['Case-Insensitive Commands', 'DCL uppercases what you type. Commands and qualifiers can be shortened to any unique prefix: <code>DIR</code>, <code>SH DEF</code>, <code>DEL</code>.'],
+		['Qualifiers Use Slashes', 'Options are <code>/QUALIFIER</code> or <code>/QUALIFIER=value</code>, e.g. <code>DIRECTORY/SIZE/DATE</code>. <code>/NO…</code> turns one off.'],
+		['Wildcards', '<code>*</code> matches any characters, <code>%</code> matches exactly one, and <code>[...]</code> searches every subdirectory below the current one.'],
+		['Logical Names', 'Named aliases for devices, directories or files, like <code>SYS$LOGIN</code> (your home) and <code>SYS$SYSTEM</code>. Use them anywhere a path goes.'],
+		['Privileges, Not Root', 'Rights come from individual privileges (SYSPRV, BYPASS, CMKRNL…) granted to an account. SYSTEM has them all, so be careful as SYSTEM.']
+	];
+	const keys = [
+		['↑ / ↓', 'Recall earlier commands'], ['Ctrl-Y', 'Interrupt the running program'], ['Ctrl-C', 'Cancel (many programs treat it like Ctrl-Y)'],
+		['Ctrl-Z', 'End of input, or exit a utility'], ['Ctrl-T', 'Show what your process is doing'], ['Ctrl-U', 'Erase the current line'],
+		['Ctrl-S / Q', 'Pause / resume output'], ['Ctrl-O', 'Discard output until pressed again'], ['-', 'At line end: continue the command on the next line']
+	];
 </script>
 
 <Seo title="OpenVMS Field Notes" description="Everyday OpenVMS DCL commands and concepts for newcomers, plus notes for running OpenVMS x86-64 under QEMU on a Mac." />
@@ -41,18 +64,13 @@
 </Banner>
 
 <StickyBar>
-<div class="filter">
-	<input type="search" bind:value={query} placeholder="Filter commands, e.g. delete, process, tcpip…" autocomplete="off" aria-label="Filter commands" />
-	<span class="hint">{term ? `${shownCount} of ${total} commands` : `${total} commands`}</span>
-</div>
-<nav class="toc" aria-label="Sections">
-	<a href="#basics">Basics</a><a href="#keys">Keys</a><a href="#files">Files</a><a href="#dirs">Directories</a><a href="#info">System Info</a><a href="#procs">Processes &amp; Batch</a><a href="#symbols">Symbols &amp; Logicals</a><a href="#users">Users</a><a href="#net">TCP/IP &amp; SSH</a><a href="#admin">Admin &amp; Shutdown</a>
-</nav>
+	<FilterInput bind:value={query} placeholder="Filter commands, e.g. delete, process, tcpip…" label="Filter commands" count={term ? `${shownCount} of ${total} commands` : `${total} commands`} />
+	<SectionLinks links={sectionLinks} />
 </StickyBar>
 
 <section id="basics" bind:this={staticEls.basics} hidden={staticHit.basics === false}>
     <h2>How VMS Thinks</h2>
-    <div class="spec">
+    <Card class="gap-3.5 p-[18px]">
       <div class="spec-line">
         <div class="spec-parts" aria-label="File specification anatomy">
           <span><b class="hl-var">MYNODE::</b><small>node</small></span>
@@ -64,14 +82,11 @@
         </div>
       </div>
       <p>A full file specification. You usually type only the parts you need: <code>TODO.TXT</code> means the newest version in your current directory.</p>
-    </div>
+    </Card>
     <div class="notes">
-      <div><h3>Files Have Versions</h3><p>Every save creates <code>;2</code>, <code>;3</code>, and so on. Nothing is overwritten. <code>PURGE</code> deletes the old versions, and <code>DELETE</code> needs a version number (<code>;*</code> for all of them).</p></div>
-      <div><h3>Case-Insensitive Commands</h3><p>DCL uppercases what you type. Commands and qualifiers can be shortened to any unique prefix: <code>DIR</code>, <code>SH DEF</code>, <code>DEL</code>.</p></div>
-      <div><h3>Qualifiers Use Slashes</h3><p>Options are <code>/QUALIFIER</code> or <code>/QUALIFIER=value</code>, e.g. <code>DIRECTORY/SIZE/DATE</code>. <code>/NO…</code> turns one off.</p></div>
-      <div><h3>Wildcards</h3><p><code>*</code> matches any characters, <code>%</code> matches exactly one, and <code>[...]</code> searches every subdirectory below the current one.</p></div>
-      <div><h3>Logical Names</h3><p>Named aliases for devices, directories or files, like <code>SYS$LOGIN</code> (your home) and <code>SYS$SYSTEM</code>. Use them anywhere a path goes.</p></div>
-      <div><h3>Privileges, Not Root</h3><p>Rights come from individual privileges (SYSPRV, BYPASS, CMKRNL…) granted to an account. SYSTEM has them all, so be careful as SYSTEM.</p></div>
+      {#each notes as [title, body] (title)}
+        <Card><h3>{title}</h3><p class="text-sm text-muted">{@html body}</p></Card>
+      {/each}
     </div>
 </section>
 
@@ -79,36 +94,30 @@
 	<section id={s.id} hidden={term !== '' && s.shown.length === 0}>
 		<h2>{@html s.title}</h2>
 		{#if s.intro}<p class="intro">{@html s.intro}</p>{/if}
-		<div class="tbl">
-			<table>
-				<thead><tr>{#each s.heads as h (h)}<th>{h}</th>{/each}</tr></thead>
-				<tbody>
+		<div class="cmd-table">
+			<Table hoverable>
+				<TableHead>{#each s.heads as h (h)}<TableHeadCell>{h}</TableHeadCell>{/each}</TableHead>
+				<TableBody>
 					{#each s.shown as r, i (r.cmd)}
 						{@const key = `${s.id}-${i}-${r.copy}`}
-						<tr class:copied={copiedKey === key}>
-							<td class="cmd" tabindex="0" title="Copy" onclick={(e) => copy(key, r.copy, e)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copy(key, r.copy, e); } }}><code>{@html highlight(r.copy, 'dcl')}</code></td>
-							<td>{@html r.desc}</td>
-						</tr>
+						<TableBodyRow class={copiedKey === key ? 'copied' : ''}>
+							<TableBodyCell class="cmd w-[46%]" title="Copy" onclick={(/** @type {Event} */ e) => copy(key, r.copy, e)}><code>{@html highlight(r.copy, 'dcl')}</code></TableBodyCell>
+							<TableBodyCell>{@html r.desc}</TableBodyCell>
+						</TableBodyRow>
 					{/each}
-				</tbody>
-			</table>
+				</TableBody>
+			</Table>
 		</div>
-		{#if s.after}{@html s.after}{/if}
+		{#if s.after}<Callout kind="info">{@html s.after}</Callout>{/if}
 	</section>
 {/snippet}
 
 <section id="keys" bind:this={staticEls.keys} hidden={staticHit.keys === false}>
     <h2>Keys at the <code>$</code> Prompt</h2>
     <div class="keys">
-      <div><kbd>↑ / ↓</kbd><span>Recall earlier commands</span></div>
-      <div><kbd>Ctrl-Y</kbd><span>Interrupt the running program</span></div>
-      <div><kbd>Ctrl-C</kbd><span>Cancel (many programs treat it like Ctrl-Y)</span></div>
-      <div><kbd>Ctrl-Z</kbd><span>End of input, or exit a utility</span></div>
-      <div><kbd>Ctrl-T</kbd><span>Show what your process is doing</span></div>
-      <div><kbd>Ctrl-U</kbd><span>Erase the current line</span></div>
-      <div><kbd>Ctrl-S / Q</kbd><span>Pause / resume output</span></div>
-      <div><kbd>Ctrl-O</kbd><span>Discard output until pressed again</span></div>
-      <div><kbd>-</kbd><span>At line end: continue the command on the next line</span></div>
+      {#each keys as [key, what] (key)}
+        <div><Kbd>{key}</Kbd><span>{what}</span></div>
+      {/each}
     </div>
 </section>
 
@@ -118,7 +127,7 @@
 
 {#if nothing}<p class="empty">No commands match that filter.</p>{/if}
 
-<footer>
+<footer class="page-footer">
 	For depth, use <code>HELP</code> on the VM itself, or VSI's documentation at <a href="https://docs.vmssoftware.com/" target="_blank" rel="noopener">docs.vmssoftware.com</a>.
 	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>

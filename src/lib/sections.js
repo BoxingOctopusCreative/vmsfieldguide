@@ -561,6 +561,6 @@ export const sections = [
         "desc": "Clean shutdown. It asks a few questions; the defaults are fine. Always do this before powering off the machine or closing the emulator."
       }
     ],
-    "after": "<p class=\"callout\"><strong>Message format:</strong> errors look like <code>%DCL-W-NOCOMD, …</code>, which is facility, severity, then code. The severity letter is S (success), I (information), W (warning), E (error) or F (fatal). <code>-</code> instead of <code>%</code> means a follow-on line of the same message.</p>"
+    "after": "<strong>Message format:</strong> errors look like <code>%DCL-W-NOCOMD, …</code>, which is facility, severity, then code. The severity letter is S (success), I (information), W (warning), E (error) or F (fatal). <code>-</code> instead of <code>%</code> means a follow-on line of the same message."
   }
 ];

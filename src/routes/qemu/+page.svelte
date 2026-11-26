@@ -2,6 +2,9 @@
 	import Banner from '#lib/Banner.svelte';
 	import Seo from '#lib/Seo.svelte';
 	import CodeBlock from '#lib/CodeBlock.svelte';
+	import Callout from '#lib/Callout.svelte';
+	import SectionLinks from '#lib/SectionLinks.svelte';
+	import { Table, TableHead, TableHeadCell, TableBody, TableBodyRow, TableBodyCell } from 'flowbite-svelte';
 	import { highlight } from '#lib/highlight.js';
 	import { copyText } from '#lib/copy.js';
 	import { resolve } from '$app/paths';
@@ -65,7 +68,7 @@
 	steps, start to finish. On an Intel or AMD machine, <a href={resolve('/pc')}>Run It on a PC</a> is much simpler.
 </Banner>
 
-<aside class="credit" aria-label="Credit">
+<Callout kind="info">
 	<p>
 		<strong>Credit:</strong> this walkthrough is based on
 		<a href={GUIDE} target="_blank" rel="noopener">“Running OpenVMS 9.2-3 (x86_64) on macOS arm64 with QEMU TCG”</a>
@@ -76,7 +79,7 @@
 		The wording here is new. Boxes marked <em>Tip</em> are additions, not part of the original guide: alternatives and
 		fixes for problems you may run into.
 	</p>
-</aside>
+</Callout>
 
 <section id="quickstart">
 	<h2>Quickstart Script</h2>
@@ -91,7 +94,7 @@
 	<CodeBlock code={`curl -fsSLO ${script}
 less mac.sh
 bash mac.sh --image ~/Downloads/community_2026.rar`} />
-	<ul class="points">
+	<ul class="ms-5 grid max-w-[75ch] list-disc gap-2">
 		<li><strong>What it needs:</strong> <a href="https://brew.sh" target="_blank" rel="noopener">Homebrew</a>, the Xcode command line tools (<code>xcode-select --install</code>), a few GB of free disk and 10 to 20 minutes, mostly building QEMU.</li>
 		<li><strong>Where things go:</strong> QEMU in <code>~/.local/qemu</code>, the VM in <code>~/openvms</code>. Change them with <code>--prefix</code> and <code>--vm-dir</code>; <code>--help</code> lists every option.</li>
 		<li><strong>What it won't do:</strong> it never uses <code>sudo</code>, and it never overwrites an existing disk image, UEFI variable store or <code>boot-vms.sh</code>. Run it again any time; finished steps are skipped.</li>
@@ -100,12 +103,7 @@ bash mac.sh --image ~/Downloads/community_2026.rar`} />
 	<p>When it finishes, carry on from <a href="#boot">step 8, First Boot</a>. The steps below are the same process by hand.</p>
 </section>
 
-<nav class="toc" aria-label="Steps">
-	<a href="#quickstart">Quickstart Script</a>
-	{#each steps as [id, label], i (id)}<a href="#{id}">{i + 1}. {label}</a>{/each}
-	<a href="#daily">Day-to-Day Commands</a>
-	<a href="#perf">Performance</a>
-</nav>
+<SectionLinks label="Steps" links={[['quickstart', 'Quickstart Script'], ...steps.map(([id, label], i) => /** @type {[string, string]} */ ([id, `${i + 1}. ${label}`])), ['daily', 'Day-to-Day Commands'], ['perf', 'Performance']]} />
 
 <ol class="steps">
 	<li class="step" id="sdl">
@@ -120,9 +118,8 @@ make -j$(sysctl -n hw.ncpu)
 sudo make install
 cd ..`}
 		/>
-		<div class="mine">
-			<p><strong>Tip:</strong> Homebrew works too: <code>brew install sdl2</code>. QEMU's configure finds it through pkg-config just the same.</p>
-		</div>
+		<Callout title="Tip">
+			<p>Homebrew works too: <code>brew install sdl2</code>. QEMU's configure finds it through pkg-config just the same.</p></Callout>
 	</li>
 
 	<li class="step" id="socat">
@@ -186,15 +183,14 @@ git apply 02-max-insns-per-tb.patch`}
   --prefix=/usr/local
 make -j$(sysctl -n hw.ncpu)`}
 		/>
-		<div class="mine">
-			<p><strong>Tip:</strong> no admin rights, or an old libfuse in <code>/usr/local/lib</code> getting linked in? Add <code>--disable-fuse</code>, install into your home directory instead, and confirm fuse isn't linked:</p>
+		<Callout title="Tip">
+			<p>no admin rights, or an old libfuse in <code>/usr/local/lib</code> getting linked in? Add <code>--disable-fuse</code>, install into your home directory instead, and confirm fuse isn't linked:</p>
 			<CodeBlock
 				code={`../configure <same flags as above> --disable-fuse --prefix=$HOME/.local/qemu
 make -j$(sysctl -n hw.ncpu) && make install
 otool -L qemu-system-x86_64 | grep -i fuse   # should print nothing`}
 			/>
-			<p><code>make install</code> also puts the UEFI firmware in <code>~/.local/qemu/share/qemu</code>, which the boot script needs.</p>
-		</div>
+			<p><code>make install</code> also puts the UEFI firmware in <code>~/.local/qemu/share/qemu</code>, which the boot script needs.</p></Callout>
 	</li>
 
 	<li class="step" id="sign">
@@ -235,9 +231,8 @@ codesign -f -s - qemu-img`}
 			<li><code>OVMF_VARS.qcow2</code> is a writable UEFI variable store. It's qcow2 so it can be included in snapshots. (QEMU ships one vars template, <code>edk2-i386-vars.fd</code>, for both 32- and 64-bit firmware.)</li>
 		</ul>
 		<p>Once the conversion is done you can delete the RAR and the extracted folder.</p>
-		<div class="mine">
-			<p><strong>Tip:</strong> macOS has no <code>unrar</code>. <code>brew install sevenzip</code> then <code>7zz x community_2026.rar</code> does the same job. With a home-directory install (step 4), the vars template is at <code>~/.local/qemu/share/qemu/edk2-i386-vars.fd</code>.</p>
-		</div>
+		<Callout title="Tip">
+			<p>macOS has no <code>unrar</code>. <code>brew install sevenzip</code> then <code>7zz x community_2026.rar</code> does the same job. With a home-directory install (step 4), the vars template is at <code>~/.local/qemu/share/qemu/edk2-i386-vars.fd</code>.</p></Callout>
 	</li>
 
 	<li class="step" id="script">
@@ -282,15 +277,14 @@ exec "$QEMU" \\
 			<li>The disk on an AHCI controller, the QEMU monitor on <code>monitor.sock</code>, and an e1000e NIC behind user-mode NAT.</li>
 			<li><code>hostfwd</code>: Mac ports 2222, 2223 and 2221 reach the guest's SSH, Telnet and FTP.</li>
 		</ul>
-		<div class="mine">
-			<p><strong>Tip:</strong> if you installed QEMU under <code>~/.local/qemu</code>, set <code>FIRMWARE="$HOME/.local/qemu/share/qemu"</code> and add <code>-L "$FIRMWARE"</code> so QEMU also finds its VGA BIOS and option ROMs there.</p>
+		<Callout title="Tip">
+			<p>if you installed QEMU under <code>~/.local/qemu</code>, set <code>FIRMWARE="$HOME/.local/qemu/share/qemu"</code> and add <code>-L "$FIRMWARE"</code> so QEMU also finds its VGA BIOS and option ROMs there.</p>
 			<p>A serial console on a socket, logged to a file, is handy for watching boot from a terminal. Add these lines before <code>-display sdl</code>:</p>
 			<CodeBlock
 				code={`  -chardev socket,id=con0,path="$BASEDIR/console.sock",server=on,wait=off,logfile="$BASEDIR/console.log" \\
   -serial chardev:con0 \\`}
 			/>
-			<p>Don't swap <code>-display sdl</code> for <code>-display none</code>: without a display, VMS can hang right after <code>%GCDRIVER-I-INITDRV</code>.</p>
-		</div>
+			<p>Don't swap <code>-display sdl</code> for <code>-display none</code>: without a display, VMS can hang right after <code>%GCDRIVER-I-INITDRV</code>.</p></Callout>
 	</li>
 
 	<li class="step" id="boot">
@@ -330,50 +324,47 @@ $ RENAME SYS$COMMON:[SYSMGR]TOMCAT$DEFINE_LOGICALS.COM -
 		<h2>Connect over SSH, Telnet or FTP</h2>
 		<p>The port forwards make the guest reachable on localhost. VMS's SSH server is slow to complete the handshake under emulation, so allow a long timeout:</p>
 		<CodeBlock code={`ssh -p 2222 -o ConnectTimeout=120 -o ServerAliveInterval=30 system@127.0.0.1`} />
-		<div class="mine">
-			<p><strong>Tip:</strong> OpenSSH comes preinstalled on the Community image. If <code>ssh</code> is refused, start the server inside VMS with <code>@SYS$STARTUP:SSH$STARTUP</code> and check that <code>TCPIP SHOW SERVICE</code> lists <code>SSHD22</code> as enabled. Telnet is on <code>telnet 127.0.0.1 2223</code> and FTP on <code>ftp -P 2221 127.0.0.1</code>.</p>
-		</div>
+		<Callout title="Tip">
+			<p>OpenSSH comes preinstalled on the Community image. If <code>ssh</code> is refused, start the server inside VMS with <code>@SYS$STARTUP:SSH$STARTUP</code> and check that <code>TCPIP SHOW SERVICE</code> lists <code>SSHD22</code> as enabled. Telnet is on <code>telnet 127.0.0.1 2223</code> and FTP on <code>ftp -P 2221 127.0.0.1</code>.</p></Callout>
 	</li>
 </ol>
 
 <section id="daily">
 	<h2>Day-to-Day Commands</h2>
 	<p class="intro">Run these on the Mac, from the folder that holds <code>boot-vms.sh</code>. Click a command to copy it.</p>
-	<div class="tbl">
-		<table>
-			<thead><tr><th>Command</th><th>What it does</th></tr></thead>
-			<tbody>
+	<div class="cmd-table">
+		<Table hoverable>
+			<TableHead><TableHeadCell>Command</TableHeadCell><TableHeadCell>What it does</TableHeadCell></TableHead>
+			<TableBody>
 				{#each daily as d, i (d.cmd)}
-					<tr class:copied={copied === i}>
-						<td class="cmd" tabindex="0" title="Copy" onclick={(e) => copyDaily(i, e)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyDaily(i, e); } }}><code>{@html highlight(d.cmd, 'shell')}</code></td>
-						<td>{@html d.desc}</td>
-					</tr>
+					<TableBodyRow class={copied === i ? 'copied' : ''}>
+						<TableBodyCell class="cmd w-[46%]" title="Copy" onclick={(/** @type {Event} */ e) => copyDaily(i, e)}><code>{@html highlight(d.cmd, 'shell')}</code></TableBodyCell>
+						<TableBodyCell>{@html d.desc}</TableBodyCell>
+					</TableBodyRow>
 				{/each}
-			</tbody>
-		</table>
+			</TableBody>
+		</Table>
 	</div>
-	<p class="callout"><strong>Shut down from inside VMS:</strong> run <code>@SYS$SYSTEM:SHUTDOWN</code> before closing QEMU. Sending <code>quit</code> to the monitor, or closing the window, is the same as pulling the power.</p>
+	<Callout kind="warn" title="Shut down from inside VMS"><p>Run <code>@SYS$SYSTEM:SHUTDOWN</code> before closing QEMU. Sending <code>quit</code> to the monitor, or closing the window, is the same as pulling the power.</p></Callout>
 </section>
 
 <section id="perf">
 	<h2>Performance</h2>
 	<p class="intro">astr0baby's numbers on a MacBook Air M2 (8 GB), with one emulated CPU and the services above disabled:</p>
-	<div class="tbl perf">
-		<table>
-			<thead><tr><th>Measure</th><th>Result</th></tr></thead>
-			<tbody>
-				<tr><td>Cold boot to login</td><td>2 min 40 s</td></tr>
-				<tr><td>Restore from snapshot</td><td>under 1 s</td></tr>
-				<tr><td>C compile and link</td><td>about 5 s</td></tr>
-				<tr><td>Shutdown</td><td>about 30 s</td></tr>
-				<tr><td>Dhrystone 2.1</td><td>95.1 VUPs</td></tr>
-			</tbody>
-		</table>
+	<div class="perf">
+		<Table>
+			<TableHead><TableHeadCell>Measure</TableHeadCell><TableHeadCell>Result</TableHeadCell></TableHead>
+			<TableBody>
+				{#each [['Cold boot to login', '2 min 40 s'], ['Restore from snapshot', 'under 1 s'], ['C compile and link', 'about 5 s'], ['Shutdown', 'about 30 s'], ['Dhrystone 2.1', '95.1 VUPs']] as [measure, result] (measure)}
+					<TableBodyRow><TableBodyCell>{measure}</TableBodyCell><TableBodyCell>{result}</TableBodyCell></TableBodyRow>
+				{/each}
+			</TableBody>
+		</Table>
 	</div>
 	<p>Integer work is usable for interactive development. Floating point and string operations are much slower, because TCG has to emulate SSE and repeated string instructions one at a time on arm64.</p>
 </section>
 
-<footer>
+<footer class="page-footer">
 	Original guide, patches and scripts: <a href={GUIDE} target="_blank" rel="noopener">astr0baby.online/OpenVMS/QEMU_TCG</a>.
 	OpenVMS and the Community License are from <a href="https://vmssoftware.com/" target="_blank" rel="noopener">VMS Software, Inc.</a>
 	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>

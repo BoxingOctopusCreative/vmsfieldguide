@@ -3,6 +3,12 @@
 	import Seo from '#lib/Seo.svelte';
 	import { edges, linuxWins, stillRuns } from '#lib/why.js';
 	import { resolve } from '$app/paths';
+	import SectionLinks from '#lib/SectionLinks.svelte';
+	import { Card, List, Li } from 'flowbite-svelte';
+	import { Network, History, Files, Database, SquareTerminal, ShieldCheck, Zap, ListOrdered, CircleCheck, Building2 } from '@lucide/svelte';
+
+	// One icon per advantage, in the order of `edges` in why.js.
+	const edgeIcons = [Network, History, Files, Database, SquareTerminal, ShieldCheck, Zap, ListOrdered];
 </script>
 
 <Seo
@@ -15,37 +21,40 @@
 	VMS's design choices are still hard to match. For the commands side by side, see <a href={resolve('/compare')}>VMS vs. Unix</a>.
 </Banner>
 
-<nav class="toc" aria-label="Sections">
-	<a href="#edges">Where VMS Still Leads</a><a href="#linux">Where Linux Wins</a><a href="#where">Where VMS Still Runs</a><a href="#bottom">The Bottom Line</a>
-</nav>
+<SectionLinks links={[['edges', 'Where VMS Still Leads'], ['linux', 'Where Linux Wins'], ['where', 'Where VMS Still Runs'], ['bottom', 'The Bottom Line']]} />
 
 <section id="edges">
 	<h2>Where VMS Still Leads</h2>
 	<p class="intro">These come from features designed into the operating system from the start, rather than added later.</p>
 	<div class="notes edges">
-		{#each edges as e (e.title)}
-			<div>
-				<h3>{e.title}</h3>
-				<p>{@html e.vms}</p>
+		{#each edges as e, i (e.title)}
+			{@const Icon = edgeIcons[i]}
+			<Card class="gap-2">
+				<h3 class="flex items-center gap-2"><Icon size={18} class="shrink-0 text-accent" aria-hidden="true" />{e.title}</h3>
+				<p class="text-sm">{@html e.vms}</p>
 				<p class="linux"><span>Linux today</span>{@html e.linux}</p>
-			</div>
+			</Card>
 		{/each}
 	</div>
 </section>
 
 <section id="linux">
 	<h2>Where Linux Wins</h2>
-	<ul class="points">
-		{#each linuxWins as w, i (i)}<li>{@html w}</li>{/each}
-	</ul>
+	<List class="grid max-w-[75ch] list-none gap-2.5">
+		{#each linuxWins as w, i (i)}
+			<Li class="flex items-start gap-2"><CircleCheck size={17} class="mt-0.5 shrink-0 text-accent" aria-hidden="true" /><span>{@html w}</span></Li>
+		{/each}
+	</List>
 </section>
 
 <section id="where">
 	<h2>Where VMS Still Runs</h2>
 	<p class="intro">Mostly in systems that have to stay up and rarely change, where a proven platform is worth more than a fashionable one:</p>
-	<ul class="points">
-		{#each stillRuns as s (s)}<li>{s}</li>{/each}
-	</ul>
+	<List class="grid max-w-[75ch] list-none gap-2">
+		{#each stillRuns as s (s)}
+			<Li class="flex items-start gap-2"><Building2 size={17} class="mt-0.5 shrink-0 text-muted" aria-hidden="true" /><span>{s}</span></Li>
+		{/each}
+	</List>
 </section>
 
 <section id="bottom">
@@ -62,18 +71,13 @@
 	</p>
 </section>
 
-<footer>
+<footer class="page-footer">
 	Written in November 2026, comparing OpenVMS x86-64 V9.2-3 with current Linux. Details change; check vendor documentation
 	before relying on any of this for a decision.
 	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>
 
 <style>
-	.edges > div {
-		display: grid;
-		gap: 8px;
-		align-content: start;
-	}
 	.linux {
 		font-size: 13px;
 		color: var(--muted);
