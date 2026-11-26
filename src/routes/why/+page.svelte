@@ -74,7 +74,6 @@
 <footer class="page-footer">
 	Written in November 2026, comparing OpenVMS x86-64 V9.2-3 with current Linux. Details change; check vendor documentation
 	before relying on any of this for a decision.
-	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>
 
 <style>

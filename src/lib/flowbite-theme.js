@@ -12,5 +12,10 @@ export const theme = {
 	tableHeadCell: 'px-3.5 py-2.5 font-semibold',
 	tableBodyCell: 'px-3.5 py-2 whitespace-normal font-normal align-top',
 	card: { base: 'max-w-none shadow-none p-4 gap-1.5' },
-	navbarLi: 'no-underline'
+	// The page menu: the site's surface and border, and the accent colour for the current page.
+	dropdown: 'z-50 border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800',
+	dropdownItem: {
+		base: 'text-fg no-underline hover:bg-gray-100 dark:hover:bg-gray-700',
+		active: 'text-accent dark:text-accent no-underline bg-gray-100 dark:bg-gray-700'
+	}
 };

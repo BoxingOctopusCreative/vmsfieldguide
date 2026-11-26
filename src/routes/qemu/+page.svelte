@@ -87,7 +87,7 @@
 		One script does steps 1 to 7 for you: it installs the build tools with Homebrew, builds the patched QEMU, signs it, converts
 		the Community License disk and writes the boot script. First register for the
 		<a href="https://vmssoftware.com/community/community-license/" target="_blank" rel="noopener">Community License</a> and
-		download the RAR, then run:
+		download the RAR (<a href={resolve('/get')}>Get OpenVMS</a> explains how), then run:
 	</p>
 	<CodeBlock code={`curl -fsSL ${script} | bash -s -- --image ~/Downloads/community_2026.rar`} />
 	<p>Prefer to read a script before running it? Download it first:</p>
@@ -367,5 +367,4 @@ $ RENAME SYS$COMMON:[SYSMGR]TOMCAT$DEFINE_LOGICALS.COM -
 <footer class="page-footer">
 	Original guide, patches and scripts: <a href={GUIDE} target="_blank" rel="noopener">astr0baby.online/OpenVMS/QEMU_TCG</a>.
 	OpenVMS and the Community License are from <a href="https://vmssoftware.com/" target="_blank" rel="noopener">VMS Software, Inc.</a>
-	<p class="tm">OpenVMS and the OpenVMS logo are trademarks of VMS Software, Inc. This is an unofficial fan reference.</p>
 </footer>
