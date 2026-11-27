@@ -4,7 +4,8 @@ import adapter from '@sveltejs/adapter-static';
 import { defineConfig } from 'vite';
 
 // Absolute site origin for canonical URLs, Open Graph tags and the sitemap.
-// Set SITE_URL to pin a custom domain; on Vercel it falls back to the production domain.
+// SITE_URL is a Vercel project environment variable (Production); without it, the build falls back
+// to Vercel's production domain, and local builds leave absolute URLs out.
 const siteUrl = (
 	process.env.SITE_URL ||
 	(process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '')

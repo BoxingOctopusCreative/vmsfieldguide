@@ -34,11 +34,18 @@ npm run preview  # serve the build locally
 
 ## Deploying
 
-Import the repo into Vercel. It detects SvelteKit, runs `npm run build`, and serves the prerendered pages; no extra
-config is needed.
+Production deploys happen only through the release workflow: every pull request merged into `main` is tested, deployed
+to Vercel production, then tagged and published as a GitHub release. Its `release:*` label picks the version bump
+(`release:patch` by default, `release:none` to merge without releasing). Vercel's own deploys of `main` are switched
+off in `vercel.json`; pull requests still get preview deploys.
 
-Canonical URLs, Open Graph tags, `robots.txt` and the sitemap need the site's absolute address. On Vercel it comes from
-the production domain automatically; set `SITE_URL` (for example `https://vms.example.com`) to use a custom domain.
+Setup:
+
+1. Import the repo into Vercel (or run `vercel link`).
+2. Add the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` on GitHub.
+3. Optionally set `SITE_URL` (for example `https://vms.example.com`) in the Vercel project's Production environment
+   variables. Canonical URLs, Open Graph tags, `robots.txt` and the sitemap use it; without it they use Vercel's
+   production domain.
 
 ---
 
