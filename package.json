@@ -11,7 +11,8 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check"
+		"check": "svelte-kit sync && svelte-check",
+		"test": "node --test src/lib/dcl/"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "1.72.0",

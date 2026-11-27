@@ -32,13 +32,16 @@ jobs:
       - name: Type-check
         run: npm run check
 
+      - name: Simulator tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
       - name: Check the output
         run: |
           set -euo pipefail
-          for page in index compare why qemu pc; do
+          for page in index compare dcl why qemu pc; do
             test -s "build/${page}.html" || { echo "::error::build/${page}.html is missing"; exit 1; }
           done
           for file in robots.txt sitemap.xml install/mac.sh favicon.svg og-image.png; do
