@@ -4,6 +4,9 @@ A static site for getting started with OpenVMS x86-64 V9.2-3:
 
 - **Cheat Sheet** (`/`): everyday DCL commands and concepts, with a live filter and click-to-copy.
 - **VMS vs. Unix** (`/compare`): DCL commands side by side with their closest Unix, Linux and macOS equivalents.
+- **Try (Simulated) OpenVMS** (`/dcl`): a simulated OpenVMS system that runs in the browser, from boot manager
+  and login to DCL and the EVE and EDT editors, with demo files, command procedures and a list
+  of what it does and doesn't cover. The engine is plain JavaScript in `src/lib/dcl/`.
 - **Why VMS?** (`/why`): where OpenVMS still has an edge over modern Unix and Linux, and where it doesn't.
 - **Run It on a Mac** (`/qemu`): step-by-step setup of OpenVMS under a patched QEMU (TCG) on Apple Silicon,
   plus a quickstart script served at `/install/mac.sh`.
@@ -24,6 +27,7 @@ Built with SvelteKit and `@sveltejs/adapter-static`; every page is prerendered.
 npm install
 npm run dev      # local dev server
 npm run check    # type-check
+npm test         # simulator tests
 npm run build    # static output in ./build
 npm run preview  # serve the build locally
 ```

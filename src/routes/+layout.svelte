@@ -4,7 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { ThemeProvider, Navbar, NavBrand, Button, Dropdown, DropdownItem, Footer } from 'flowbite-svelte';
-	import { SquareTerminal, Menu, X, BookOpen, ArrowLeftRight, Landmark, CircleHelp, Download, Laptop, Monitor } from '@lucide/svelte';
+	import { SquareTerminal, Menu, X, BookOpen, ArrowLeftRight, Landmark, CircleHelp, Download, Laptop, Monitor, Terminal } from '@lucide/svelte';
 	import ThemeToggle from '#lib/ThemeToggle.svelte';
 	import { theme } from '#lib/flowbite-theme.js';
 
@@ -18,6 +18,7 @@
 	const links = [
 		{ href: resolve('/'), label: 'Cheat Sheet', icon: BookOpen },
 		{ href: resolve('/compare'), label: 'VMS vs. Unix', icon: ArrowLeftRight },
+		{ href: resolve('/dcl'), label: 'Try (Simulated) OpenVMS', icon: Terminal },
 		{ href: resolve('/history'), label: 'What Is OpenVMS?', icon: Landmark },
 		{ href: resolve('/why'), label: 'Why VMS?', icon: CircleHelp },
 		{ href: resolve('/get'), label: 'Get OpenVMS', icon: Download },
