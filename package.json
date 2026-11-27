@@ -12,7 +12,7 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check",
-		"test": "node --test src/lib/dcl/"
+		"test": "node --test src/lib/dcl/dcl.test.js"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "1.72.0",
